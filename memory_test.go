@@ -4,8 +4,10 @@
 
 package stash
 
+import "time"
+
 func (t *StashTestSuite) TestMemory() {
-	got := NewMemory(DefaultExpiry, DefaultCleanup)
+	got := NewMemory(time.Second*1, time.Second*1)
 	t.NotNil(got)
 	t.NotNil(got.client)
 	m := MemoryStore{}

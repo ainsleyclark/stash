@@ -16,16 +16,16 @@ import (
 // RedisStore defines the data stored for the redisStore
 // client.
 type RedisStore struct {
-	client  *redis.Client
-	options redis.Options
+	client            *redis.Client
+	options           redis.Options
 	defaultExpiration time.Duration
 }
 
 // NewRedis creates a new redis store and returns a provider.
 func NewRedis(options redis.Options, defaultExpiration time.Duration) *RedisStore {
 	return &RedisStore{
-		client:  redis.NewClient(&options),
-		options: options,
+		client:            redis.NewClient(&options),
+		options:           options,
 		defaultExpiration: defaultExpiration,
 	}
 }

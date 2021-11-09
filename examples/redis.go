@@ -10,12 +10,13 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/lacuna-seo/stash"
 	"log"
+	"time"
 )
 
 func Redis() {
 	provider := stash.NewRedis(redis.Options{
 		Addr: "127.0.0.1",
-	})
+	}, time.Hour*1)
 
 	cache, err := stash.Load(provider)
 	if err != nil {
