@@ -10,6 +10,7 @@ import (
 	"github.com/eko/gocache/v2/cache"
 	"github.com/eko/gocache/v2/store"
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 // RedisStore defines the data stored for the redisStore
@@ -17,13 +18,15 @@ import (
 type RedisStore struct {
 	client  *redis.Client
 	options redis.Options
+	defaultExpiration time.Duration
 }
 
 // NewRedis creates a new redis store and returns a provider.
-func NewRedis(options redis.Options) *RedisStore {
+func NewRedis(options redis.Options, defaultExpiration time.Duration) *RedisStore {
 	return &RedisStore{
 		client:  redis.NewClient(&options),
 		options: options,
+		defaultExpiration: defaultExpiration,
 	}
 }
 
@@ -45,7 +48,9 @@ func (r *RedisStore) Driver() string {
 // Store satisfies the Provider interface by creating a
 // new store.StoreInterface.
 func (r *RedisStore) Store() store.StoreInterface {
-	return cache.New(store.NewRedis(r.client, nil))
+	return cache.New(store.NewRedis(r.client, &store.Options{
+		Expiration: r.defaultExpiration,
+	}))
 }
 
 // Ping satisfies the Provider interface by pinging the

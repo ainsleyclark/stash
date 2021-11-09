@@ -11,7 +11,6 @@ import (
 	"github.com/eko/gocache/v2/store"
 	"github.com/spf13/cast"
 	"sync"
-	"time"
 )
 
 // Store defines methods for interacting with the
@@ -19,15 +18,15 @@ import (
 type Store interface {
 	// Get retrieves a specific item from the cache by key.
 	// Returns errors.NOTFOUND if it could not be found.
-	Get(ctx context.Context, key interface{}, v interface{}) error
+	Get(ctx context.Context, key, v interface{}) error
 	// Set set's a singular item in memory by key, value
 	// and options (tags and expiration time).
 	// Logs errors.INTERNAL if the item could not be set.
-	Set(ctx context.Context, key interface{}, value interface{}, options Options)
+	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
 	// Delete removes a singular item from the cache by
 	// a specific key.
 	// Logs errors.INTERNAL if the item could not be deleted.
-	Delete(ctx context.Context, key interface{})
+	Delete(ctx context.Context, key interface{}) error
 	// Invalidate removes items from the cache via the
 	// InvalidateOptions passed.
 	// Returns errors.INVALID if the cache could not be invalidated.
@@ -58,12 +57,6 @@ const (
 	// MemcacheDriver is the Memcached Driver, depicted
 	// in the environment.
 	MemcacheDriver = "memcache"
-	// DefaultExpiry defines how many minutes the item
-	// lasts for in the cache by default.
-	DefaultExpiry = -1
-	// DefaultCleanup defines the cleanup interval of
-	// the cache.
-	DefaultCleanup = 5 * time.Minute
 	// RememberForever is an alias for setting the
 	// cache item to never be removed.
 	RememberForever = -1
