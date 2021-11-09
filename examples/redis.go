@@ -36,8 +36,9 @@ func Redis() {
 		log.Fatalln(err)
 	}
 
-	// Obtains the cache item by key which unmarshal the value
-	// automatically by passing a pointer.
+	// Obtains the cache item by key which automatically unmarshalls
+	// the value by passing a reference to the same type that
+	// has been stored.
 	var buf []byte
 	err = cache.Get(context.Background(), "key", &buf)
 	if err != nil {
