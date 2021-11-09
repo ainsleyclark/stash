@@ -1,8 +1,8 @@
-// Copyright 2020 The Verbis Authors. All rights reserved.
+// Copyright 2020 The Reddico Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cache
+package stash
 
 import (
 	"github.com/eko/gocache/v2/store"
@@ -12,10 +12,10 @@ import (
 // Options represents the cache store available options
 // when using Set().
 type Options struct {
-	// Expiration allows to specify an expiration time
-	// when setting a value.
+	// Expiration allows to specify a global expiration
+	// time hen setting a value.
 	Expiration time.Duration
-	// Tags allows to specify associated tags to the
+	// Tags allows specifying associated tags to the
 	// current value.
 	Tags []string
 }
@@ -28,7 +28,7 @@ type InvalidateOptions struct {
 	Tags []string
 }
 
-// toStore converts Options to the gocache Options..
+// toStore converts Options to the store Options.
 func (o *Options) toStore() *store.Options {
 	return &store.Options{
 		Expiration: o.Expiration,
@@ -36,7 +36,7 @@ func (o *Options) toStore() *store.Options {
 	}
 }
 
-// toStore converts InvalidateOptions to the gocache
+// toStore converts InvalidateOptions to the store
 // InvalidateOptions.
 func (i *InvalidateOptions) toStore() store.InvalidateOptions {
 	return store.InvalidateOptions{Tags: i.Tags}

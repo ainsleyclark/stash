@@ -1,21 +1,26 @@
-// Copyright 2020 The Verbis Authors. All rights reserved.
+// Copyright 2020 The Reddico Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cache
+package stash
 
-import (
-	pkg "github.com/go-redis/redis/v8"
-	"github.com/verbiscms/verbis/api/environment"
-)
+import "github.com/go-redis/redis/v8"
 
-func (t *CacheTestSuite) TestRedis() {
-	t.UtilTestProviderSuccess(&redis{
-		client: pkg.NewClient(&pkg.Options{Addr: "", Password: ""}),
-		env:    &environment.Env{RedisAddress: "127.0.0.1", RedisPassword: "password"},
-	}, RedisStore)
-	t.UtilTestProviderError(&redis{
-		client: pkg.NewClient(&pkg.Options{Addr: "127.0.0.1", Password: ""}),
-		env:    &environment.Env{RedisAddress: ""},
+func (t *StashTestSuite) TestRedis() {
+	store := &redis.Options{Addr: "127.0.0.1", Password: ""}
+
+	got := NewRedis(redis.Options{})
+	t.NotNil(got)
+	t.NotNil(got.options)
+	t.NotNil(got.client)
+
+	t.UtilTestProviderSuccess(&RedisStore{
+		client:  redis.NewClient(store),
+		options: redis.Options{Addr: "127.0.0.1", Password: ""},
+	}, RedisDriver)
+
+	t.UtilTestProviderError(&RedisStore{
+		client:  redis.NewClient(store),
+		options: redis.Options{},
 	})
 }

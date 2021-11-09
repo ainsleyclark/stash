@@ -40,7 +40,7 @@ cover: test
 
 # Make mocks keeping directory tree
 mock:
-	rm -rf mocks && mockery --all --keeptree --exported=true
+	rm -rf mocks && mockery --all --exported=true --dir="./test"
 .PHONY: mock
 
 # Make format, lint and test

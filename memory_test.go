@@ -1,16 +1,17 @@
-// Copyright 2020 The Verbis Authors. All rights reserved.
+// Copyright 2020 The Reddico Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cache
+package stash
 
-import "github.com/eko/gocache/v2/cache"
-
-func (t *CacheTestSuite) TestMemory() {
-	m := memory{}
+func (t *StashTestSuite) TestMemory() {
+	got := NewMemory(DefaultExpiry, DefaultCleanup)
+	t.NotNil(got)
+	t.NotNil(got.client)
+	m := MemoryStore{}
 	t.Nil(m.Validate())
-	t.Equal(MemoryStore, m.Driver())
+	t.Equal(MemoryDriver, m.Driver())
 	store := m.Store()
-	t.IsType(&cache.Cache{}, store)
+	t.NotNil(store)
 	t.Nil(m.Ping())
 }
