@@ -42,3 +42,4 @@ pnpm-debug.log*
 
 # App Specific
 dist
+CREDENTIALS.md

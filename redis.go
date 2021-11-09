@@ -1,55 +1,55 @@
-// Copyright 2020 The Verbis Authors. All rights reserved.
+// Copyright 2020 The Reddico Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cache
+package stash
 
 import (
 	"context"
 	"errors"
 	"github.com/eko/gocache/v2/cache"
 	"github.com/eko/gocache/v2/store"
-	pkg "github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v8"
 )
 
-// redis defines the data stored for the redis
+// RedisStore defines the data stored for the redisStore
 // client.
-type redis struct {
-	client *pkg.Client
-	config Config
+type RedisStore struct {
+	client  *redis.Client
+	options redis.Options
 }
 
-// init adds the redis store to the providerMap
-// on initialisation of the app.
-func init() {
-	providers.RegisterProvider(RedisStore, func(cfg Config) provider {
-		return &redis{pkg.NewClient(&cfg.RedisOptions), cfg}
-	})
+// NewRedis creates a new redis store and returns a provider.
+func NewRedis(options redis.Options) *RedisStore {
+	return &RedisStore{
+		client:  redis.NewClient(&options),
+		options: options,
+	}
 }
 
 // Validate satisfies the Provider interface by checking
 // for environment variables.
-func (r *redis) Validate() error {
-	if r.config.RedisOptions.Addr == "" {
-		return errors.New("no redis address defined in env")
+func (r *RedisStore) Validate() error {
+	if r.options.Addr == "" {
+		return errors.New("error: no redis address defined")
 	}
 	return nil
 }
 
 // Driver satisfies the Provider interface by returning
 // the memory driver name.
-func (r *redis) Driver() string {
-	return RedisStore
+func (r *RedisStore) Driver() string {
+	return RedisDriver
 }
 
 // Store satisfies the Provider interface by creating a
 // new store.StoreInterface.
-func (r *redis) Store() store.StoreInterface {
-	return cache.New(store.NewRedis(r.client, options))
+func (r *RedisStore) Store() store.StoreInterface {
+	return cache.New(store.NewRedis(r.client, nil))
 }
 
 // Ping satisfies the Provider interface by pinging the
 // store.
-func (r *redis) Ping() error {
+func (r *RedisStore) Ping() error {
 	return r.client.Ping(context.Background()).Err()
 }

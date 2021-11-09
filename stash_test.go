@@ -1,20 +1,16 @@
-// Copyright 2020 The Verbis Authors. All rights reserved.
+// Copyright 2020 The Reddico Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cache
+package stash
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"github.com/lacuna-seo/stash/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/verbiscms/verbis/api/environment"
-	"github.com/verbiscms/verbis/api/errors"
-	"github.com/verbiscms/verbis/api/logger"
-	mocks "github.com/verbiscms/verbis/api/mocks/cache/mocks"
 	"testing"
 )
 
@@ -22,33 +18,19 @@ const (
 	CacheKey = "key"
 )
 
-// CacheTestSuite defines the helper used for cache
+// StashTestSuite defines the helper used for cache
 // testing.
-type CacheTestSuite struct {
+type StashTestSuite struct {
 	suite.Suite
-	LogWriter bytes.Buffer
 }
 
-// TestCache asserts testing has begun.
-func TestCache(t *testing.T) {
-	suite.Run(t, new(CacheTestSuite))
-}
-
-// BeforeTest assign the logger to a buffer.
-func (t *CacheTestSuite) BeforeTest(suiteName, testName string) {
-	b := bytes.Buffer{}
-	t.LogWriter = b
-	logger.SetOutput(&t.LogWriter)
-	logger.SetLevel(logrus.TraceLevel)
-}
-
-// Reset the log writer.
-func (t *CacheTestSuite) Reset() {
-	t.LogWriter.Reset()
+// TestStash asserts testing has begun.
+func TestStash(t *testing.T) {
+	suite.Run(t, new(StashTestSuite))
 }
 
 // Setup assigns a mock Store to c.
-func (t *CacheTestSuite) Setup(mf func(m *mocks.StoreInterface)) *Cache {
+func (t *StashTestSuite) Setup(mf func(m *mocks.StoreInterface)) *Cache {
 	m := &mocks.StoreInterface{}
 	if mf != nil {
 		mf(m)
@@ -58,57 +40,33 @@ func (t *CacheTestSuite) Setup(mf func(m *mocks.StoreInterface)) *Cache {
 	}
 }
 
-func (t *CacheTestSuite) TestLoad() {
+func (t *StashTestSuite) TestLoad() {
 	tt := map[string]struct {
-		mock  func(m *mocks.Provider)
-		input *environment.Env
-		want  interface{}
+		mock func(m *mocks.Provider)
+		want interface{}
 	}{
 		"Success": {
 			func(m *mocks.Provider) {
 				m.On("Validate").Return(nil)
 				m.On("Ping").Return(nil)
-				m.On("Driver").Return(MemoryStore)
+				m.On("Driver").Return(MemoryDriver)
 				m.On("Store").Return(nil)
 			},
-			&environment.Env{CacheDriver: MemoryStore},
-			MemoryStore,
-		},
-		"Default": {
-			func(m *mocks.Provider) {
-				m.On("Validate").Return(nil)
-				m.On("Ping").Return(nil)
-				m.On("Driver").Return(MemoryStore)
-				m.On("Store").Return(nil)
-			},
-			&environment.Env{CacheDriver: ""},
-			MemoryStore,
-		},
-		"Nil Env": {
-			nil,
-			nil,
-			"Error loading cache",
-		},
-		"Invalid Driver": {
-			nil,
-			&environment.Env{CacheDriver: "wrong"},
-			"Error loading cache, invalid driver",
+			MemoryDriver,
 		},
 		"Validate Error": {
 			func(m *mocks.Provider) {
-				m.On("Validate").Return(fmt.Errorf("error"))
+				m.On("Validate").Return(errors.New("validate error"))
 			},
-			&environment.Env{CacheDriver: MemoryStore},
-			"Error loading cache, validation failed",
+			"validate error",
 		},
 		"Ping Error": {
 			func(m *mocks.Provider) {
 				m.On("Validate").Return(nil)
-				m.On("Ping").Return(fmt.Errorf("error"))
-				m.On("Driver").Return(MemoryStore)
+				m.On("Ping").Return(errors.New("ping error"))
+				m.On("Driver").Return(MemoryDriver)
 			},
-			&environment.Env{CacheDriver: MemoryStore},
-			"Error error pinging cache store",
+			"ping error",
 		},
 	}
 
@@ -118,23 +76,26 @@ func (t *CacheTestSuite) TestLoad() {
 			if test.mock != nil {
 				test.mock(m)
 			}
-			providers = providerMap{MemoryStore: func(env *environment.Env) provider {
-				return m
-			}}
-			c, err := Load(test.input)
+			c, err := Load(m)
 			if err != nil {
-				t.Contains(errors.Message(err), test.want)
+				t.Contains(err.Error(), test.want)
 				return
 			}
 			if c == nil {
 				t.Fail("nil Driver")
+				return
 			}
-			t.Equal(test.want, c.Driver())
+			t.Equal(test.want, c.driver)
 		})
 	}
 }
 
-func (t *CacheTestSuite) TestGet() {
+func (t *StashTestSuite) TestLoad_NilProvider() {
+	_, got := Load(nil)
+	t.Contains(got.Error(), "provider cannot be nil")
+}
+
+func (t *StashTestSuite) TestStash_Get() {
 	tt := map[string]struct {
 		mock func(m *mocks.StoreInterface)
 		run  func(cache *Cache) (interface{}, error)
@@ -142,7 +103,8 @@ func (t *CacheTestSuite) TestGet() {
 	}{
 		"String": {
 			func(m *mocks.StoreInterface) {
-				m.On("Get", mock.Anything, mock.Anything).Return("\"item\"", nil)
+				m.On("Get", mock.Anything, mock.Anything).
+					Return("\"item\"", nil)
 			},
 			func(c *Cache) (interface{}, error) {
 				var tmp string
@@ -153,7 +115,8 @@ func (t *CacheTestSuite) TestGet() {
 		},
 		"Int": {
 			func(m *mocks.StoreInterface) {
-				m.On("Get", mock.Anything, mock.Anything).Return("1", nil)
+				m.On("Get", mock.Anything, mock.Anything).
+					Return("1", nil)
 			},
 			func(c *Cache) (interface{}, error) {
 				var tmp int
@@ -164,18 +127,20 @@ func (t *CacheTestSuite) TestGet() {
 		},
 		"Error": {
 			func(m *mocks.StoreInterface) {
-				m.On("Get", mock.Anything, mock.Anything).Return(nil, fmt.Errorf("error"))
+				m.On("Get", mock.Anything, mock.Anything).
+					Return(nil, fmt.Errorf("get error"))
 			},
 			func(c *Cache) (interface{}, error) {
 				var tmp string
 				err := c.Get(context.Background(), "key", &tmp)
 				return tmp, err
 			},
-			"Error getting item with key",
+			"get error",
 		},
 		"Byte Slice": {
 			func(m *mocks.StoreInterface) {
-				m.On("Get", mock.Anything, mock.Anything).Return([]byte("\"test\""), nil)
+				m.On("Get", mock.Anything, mock.Anything).
+					Return([]byte("\"test\""), nil)
 			},
 			func(c *Cache) (interface{}, error) {
 				var tmp string
@@ -191,7 +156,7 @@ func (t *CacheTestSuite) TestGet() {
 			c := t.Setup(test.mock)
 			got, err := test.run(c)
 			if err != nil {
-				t.Contains(errors.Message(err), test.want)
+				t.Contains(err.Error(), test.want)
 				return
 			}
 			t.Equal(test.want, got)
@@ -199,7 +164,7 @@ func (t *CacheTestSuite) TestGet() {
 	}
 }
 
-func (t *CacheTestSuite) TestSet() {
+func (t *StashTestSuite) TestStash_Set() {
 	tt := map[string]struct {
 		mock  func(m *mocks.StoreInterface)
 		value interface{}
@@ -211,7 +176,7 @@ func (t *CacheTestSuite) TestSet() {
 					Return(nil)
 			},
 			"key",
-			"Successfully set cache item with key",
+			nil,
 		},
 		"Marshal Error": {
 			nil,
@@ -231,14 +196,17 @@ func (t *CacheTestSuite) TestSet() {
 	for name, test := range tt {
 		t.Run(name, func() {
 			c := t.Setup(test.mock)
-			c.Set(context.Background(), "key", test.value, Options{})
-			t.Contains(t.LogWriter.String(), test.want)
-			t.Reset()
+			got := c.Set(context.Background(), "key", test.value, Options{})
+			if got != nil {
+				t.Contains(got.Error(), test.want)
+				return
+			}
+			t.Equal(test.want, got)
 		})
 	}
 }
 
-func (t *CacheTestSuite) TestDelete() {
+func (t *StashTestSuite) TestStash_Delete() {
 	tt := map[string]struct {
 		mock func(m *mocks.StoreInterface)
 		want interface{}
@@ -248,7 +216,7 @@ func (t *CacheTestSuite) TestDelete() {
 				m.On("Delete", mock.Anything, mock.Anything).
 					Return(nil)
 			},
-			"Successfully deleted cache item with key",
+			nil,
 		},
 		"Error": {
 			func(m *mocks.StoreInterface) {
@@ -262,14 +230,17 @@ func (t *CacheTestSuite) TestDelete() {
 	for name, test := range tt {
 		t.Run(name, func() {
 			c := t.Setup(test.mock)
-			c.Delete(context.Background(), "key")
-			t.Contains(t.LogWriter.String(), test.want)
-			t.Reset()
+			got := c.Delete(context.Background(), "key")
+			if got != nil {
+				t.Contains(got.Error(), test.want)
+				return
+			}
+			t.Equal(test.want, got)
 		})
 	}
 }
 
-func (t *CacheTestSuite) TestInvalidate() {
+func (t *StashTestSuite) TestStash_Invalidate() {
 	tt := map[string]struct {
 		mock func(m *mocks.StoreInterface)
 		want interface{}
@@ -286,24 +257,24 @@ func (t *CacheTestSuite) TestInvalidate() {
 				m.On("Invalidate", mock.Anything, mock.Anything).
 					Return(fmt.Errorf("invalidate error"))
 			},
-			"Error invalidating cache",
+			"invalidate error",
 		},
 	}
 
 	for name, test := range tt {
 		t.Run(name, func() {
 			c := t.Setup(test.mock)
-			err := c.Invalidate(context.Background(), InvalidateOptions{})
-			if err != nil {
-				t.Contains(errors.Message(err), test.want)
+			got := c.Invalidate(context.Background(), InvalidateOptions{})
+			if got != nil {
+				t.Contains(got.Error(), test.want)
 				return
 			}
-			t.Equal(test.want, err)
+			t.Equal(test.want, got)
 		})
 	}
 }
 
-func (t *CacheTestSuite) TestClear() {
+func (t *StashTestSuite) TestStash_Clear() {
 	tt := map[string]struct {
 		mock func(m *mocks.StoreInterface)
 		want interface{}
@@ -318,21 +289,21 @@ func (t *CacheTestSuite) TestClear() {
 		"Error": {
 			func(m *mocks.StoreInterface) {
 				m.On("Clear", mock.Anything).
-					Return(fmt.Errorf("error"))
+					Return(fmt.Errorf("clear error"))
 			},
-			"Error clearing cache",
+			"clear error",
 		},
 	}
 
 	for name, test := range tt {
 		t.Run(name, func() {
 			c := t.Setup(test.mock)
-			err := c.Clear(context.Background())
-			if err != nil {
-				t.Contains(errors.Message(err), test.want)
+			got := c.Clear(context.Background())
+			if got != nil {
+				t.Contains(got.Error(), test.want)
 				return
 			}
-			t.Equal(test.want, err)
+			t.Equal(test.want, got)
 		})
 	}
 }
