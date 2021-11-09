@@ -95,7 +95,8 @@ func Load(prov Provider) (*Cache, error) {
 }
 
 // Get retrieves a specific item from the cache by key.
-// Returns errors.NOTFOUND if it could not be found.
+// Returns an error if the item could not be found
+// or unmarshalled.
 func (c *Cache) Get(ctx context.Context, key, v interface{}) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -117,7 +118,7 @@ func (c *Cache) Get(ctx context.Context, key, v interface{}) error {
 
 // Set set's a singular item in memory by key, value
 // and options (tags and expiration time).
-// Logs errors.INTERNAL if the item could not be set.
+// Returns an error if the item could not be set.
 func (c *Cache) Set(ctx context.Context, key interface{}, value interface{}, options Options) error {
 	mtx.Lock()
 	defer mtx.Unlock()

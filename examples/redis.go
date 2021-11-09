@@ -14,20 +14,35 @@ import (
 )
 
 func Redis() {
+	// Create a provider, this could be Redis, Memcache
+	// or In Memory (go-cache).
 	provider := stash.NewRedis(redis.Options{
-		Addr: "127.0.0.1",
-	}, time.Hour*1)
+		Addr: "127.0.0.1:6379",
+	}, time.Hour * 8)
 
+	// Create a new cache store by passing a provider.
 	cache, err := stash.Load(provider)
-	if err != nil {
-		return
-	}
-
-	var buf []byte
-	err = cache.Get(context.Background(), "key", buf)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	fmt.Println(string(buf))
+	// Set a cache item with key and value, with the expiration
+	// time of one hour and a tag,
+	err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
+		Expiration: time.Hour * 1,
+		Tags:       []string{"tag"},
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Obtains the cache item by key which unmarshal the value
+	// automatically by passing a pointer.
+	var buf []byte
+	err = cache.Get(context.Background(), "key", &buf)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(string(buf)) // Returns stash
 }
