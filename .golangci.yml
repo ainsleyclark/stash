@@ -13,6 +13,8 @@ linters:
 run:
   skip-dirs:
     - res
+    - test
+    - mocks
 
 
 

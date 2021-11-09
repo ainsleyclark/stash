@@ -6,12 +6,10 @@ package stasher
 
 import "github.com/eko/gocache/v2/store"
 
-// nolint
 type storeInterface interface {
 	store.StoreInterface
 }
 
-// nolint
 type Provider interface {
 	Ping() error
 	Validate() error
