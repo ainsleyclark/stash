@@ -1,0 +1,23 @@
+linters:
+  enable:
+    - gofmt
+    - govet
+    - gocyclo
+    - ineffassign
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
+    - revive
+run:
+  skip-dirs:
+    - res
+    - test
+    - mocks
+
+
+
+
+
+
