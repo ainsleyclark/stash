@@ -2,7 +2,7 @@
     <img alt="logo" src="screenshot.png" width="100%">
 </p>
 
-# STASH
+# Stash
 A cross driver cache store (stash) for Redis, MemCached & In-Memory storage.
 
 [![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
@@ -12,3 +12,4 @@ A cross driver cache store (stash) for Redis, MemCached & In-Memory storage.
 ## Install
 
 `go get -u github.com/lacuna-seo/stash`
+
