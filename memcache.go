@@ -15,16 +15,16 @@ import (
 // MemcacheStore defines the data stored for the memcache
 // client.
 type MemcacheStore struct {
-	client *memcache.Client
-	servers []string
+	client            *memcache.Client
+	servers           []string
 	defaultExpiration time.Duration
 }
 
 // NewMemcache creates a new memcached store and returns a provider.
 func NewMemcache(servers []string, defaultExpiration time.Duration) *MemcacheStore {
 	return &MemcacheStore{
-		client: memcache.New(servers...),
-		servers: servers,
+		client:            memcache.New(servers...),
+		servers:           servers,
 		defaultExpiration: defaultExpiration,
 	}
 }
