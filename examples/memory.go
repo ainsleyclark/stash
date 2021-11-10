@@ -7,17 +7,14 @@ package examples
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"github.com/lacuna-seo/stash"
 	"log"
 	"time"
 )
 
-// Redis example for Stash.
-func Redis() {
-	provider := stash.NewRedis(redis.Options{
-		Addr: "127.0.0.1:6379",
-	}, 5*time.Minute)
+// Memory example for Stash.
+func Memory() {
+	provider := stash.NewMemory(5*time.Minute, 10*time.Minute)
 
 	cache, err := stash.Load(provider)
 	if err != nil {
