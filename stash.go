@@ -18,28 +18,22 @@ import (
 type Store interface {
 	// Get retrieves a specific item from the cache by key. Values are
 	// automatically marshalled for use with Redis & Memcache.
-	// Returns an error if the item could not be found
-	// or unmarshalled.
 	Get(ctx context.Context, key, v interface{}) error
 
 	// Set stores a singular item in memory by key, value
 	// and options (tags and expiration time). Values are automatically
 	// marshalled for use with Redis & Memcache.
-	// Returns an error if the item could not be set.
 	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
 
 	// Delete removes a singular item from the cache by
 	// a specific key.
-	// Returns an error if the item could not be deleted.
 	Delete(ctx context.Context, key interface{}) error
 
 	// Invalidate removes items from the cache via the
 	// InvalidateOptions passed.
-	// Returns an error if the cache could not be invalidated.
 	Invalidate(ctx context.Context, options InvalidateOptions) error
 
 	// Clear removes all items from the cache.
-	// Returns an error.
 	Clear(ctx context.Context) error
 }
 
@@ -101,9 +95,8 @@ func Load(prov Provider) (*Cache, error) {
 	}, nil
 }
 
-// Get retrieves a specific item from the cache by key.
-// Returns an error if the item could not be found
-// or unmarshalled.
+// Get retrieves a specific item from the cache by key. Values are
+// automatically marshalled for use with Redis & Memcache.
 func (c *Cache) Get(ctx context.Context, key, v interface{}) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -123,9 +116,9 @@ func (c *Cache) Get(ctx context.Context, key, v interface{}) error {
 	return nil
 }
 
-// Set set's a singular item in memory by key, value
-// and options (tags and expiration time).
-// Returns an error if the item could not be set.
+// Set stores a singular item in memory by key, value
+// and options (tags and expiration time). Values are automatically
+// marshalled for use with Redis & Memcache.
 func (c *Cache) Set(ctx context.Context, key interface{}, value interface{}, options Options) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -138,7 +131,6 @@ func (c *Cache) Set(ctx context.Context, key interface{}, value interface{}, opt
 
 // Delete removes a singular item from the cache by
 // a specific key.
-// Returns an error if the item could not be deleted.
 func (c *Cache) Delete(ctx context.Context, key interface{}) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -147,7 +139,6 @@ func (c *Cache) Delete(ctx context.Context, key interface{}) error {
 
 // Invalidate removes items from the cache via the
 // InvalidateOptions passed.
-// Returns an error if the cache could not be invalidated.
 func (c *Cache) Invalidate(ctx context.Context, options InvalidateOptions) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -155,7 +146,6 @@ func (c *Cache) Invalidate(ctx context.Context, options InvalidateOptions) error
 }
 
 // Clear removes all items from the cache.
-// Returns an error.
 func (c *Cache) Clear(ctx context.Context) error {
 	mtx.Lock()
 	defer mtx.Unlock()
