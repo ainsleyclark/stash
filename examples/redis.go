@@ -13,12 +13,13 @@ import (
 	"time"
 )
 
+// Redis example for Stash.
 func Redis() {
 	// Create a provider, this could be Redis, Memcache
 	// or In Memory (go-cache).
 	provider := stash.NewRedis(redis.Options{
 		Addr: "127.0.0.1:6379",
-	}, time.Hour * 8)
+	}, time.Hour*8)
 
 	// Create a new cache store by passing a provider.
 	cache, err := stash.Load(provider)

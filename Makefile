@@ -3,16 +3,6 @@ setup:
 	go mod tidy && cd ./cmd go mod tidy
 .PHONY: setup
 
-# Build
-build:
-	cd ./cmd && go build -o luminati
-.PHONY: build
-
-# Runs main
-run:
-	cd ./cmd && go run main.go
-.PHONY: run
-
 # Run gofmt
 format:
 	go fmt ./...
@@ -40,7 +30,7 @@ cover: test
 
 # Make mocks keeping directory tree
 mock:
-	rm -rf mocks && mockery --all --exported=true --dir="./test"
+	rm -rf mocks && mockery --all --dir="./test"
 .PHONY: mock
 
 # Make format, lint and test

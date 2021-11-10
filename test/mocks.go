@@ -6,7 +6,7 @@ package stasher
 
 import "github.com/eko/gocache/v2/store"
 
-type storeInterface interface {
+type StoreInterface interface {
 	store.StoreInterface
 }
 
