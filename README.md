@@ -16,7 +16,7 @@ with automatic marshaling and unmarshalling of cache items.
 
 ## Install
 
-`go get -u github.com/lacuna-seo/stash`
+`go get github.com/lacuna-seo/stash`
 
 ## Provider
 
@@ -25,7 +25,6 @@ common methods between each memory store (Memory, Redis ot Memcache).
 
 It is the result of what is called by `NewMemory`, `NewRedis` or `NewMemcache`. Which can be pinged.
 and validated. The methods are described below.
-
 
 ```go
 type Provider interface {
