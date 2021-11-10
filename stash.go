@@ -16,13 +16,15 @@ import (
 // Store defines methods for interacting with the
 // caching system.
 type Store interface {
-	// Get retrieves a specific item from the cache by key.
+	// Get retrieves a specific item from the cache by key. Values are
+	// automatically marshalled for use with Redis & Memcache.
 	// Returns an error if the item could not be found
 	// or unmarshalled.
 	Get(ctx context.Context, key, v interface{}) error
 
-	// Set set's a singular item in memory by key, value
-	// and options (tags and expiration time).
+	// Set stores a singular item in memory by key, value
+	// and options (tags and expiration time). Values are automatically
+	// marshalled for use with Redis & Memcache.
 	// Returns an error if the item could not be set.
 	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
 
