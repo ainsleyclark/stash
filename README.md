@@ -28,14 +28,16 @@ and validated. The methods are described below.
 
 
 ```go
-// Provider defines the methods for a cache Provider.
 type Provider interface {
     // Ping the store.
     Ping() error
+    
     // Validate checks the environment for errors.
     Validate() error
+    
     // Driver returns the store's name.
     Driver() string
+    
     // Store returns the interface for use within
     // the cache.
     Store() store.StoreInterface
@@ -48,8 +50,6 @@ A store is what is used to interact with the cache driver. Items can retrieve, s
 flushed. The methods are described below.
 
 ```go
-// Store defines methods for interacting with the
-// caching system.
 type Store interface {
 	// Get retrieves a specific item from the cache by key.
 	// Returns an error if the item could not be found
