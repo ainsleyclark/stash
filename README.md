@@ -94,7 +94,6 @@ if err != nil {
 
 err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
     Expiration: time.Hour * 1,
-    Tags:       []string{"tag"},
 })
 if err != nil {
     log.Fatalln(err)
@@ -129,7 +128,6 @@ if err != nil {
 
 err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
     Expiration: time.Hour * 1,
-    Tags:       []string{"tag"},
 })
 if err != nil {
     log.Fatalln(err)
@@ -161,7 +159,6 @@ if err != nil {
 
 err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
     Expiration: time.Hour * 1,
-    Tags:       []string{"tag"},
 })
 if err != nil {
     log.Fatalln(err)
@@ -178,3 +175,25 @@ fmt.Println(string(buf)) // Returns stash
 
 ## Tags
 
+Cache invalidaton is hard. By using tags you are able to group cache items together.
+
+```go
+// Set a cache key with the value of 'stash' and a tag of 'category`.
+// The cache item will be expired after one hour.
+err := cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
+    Expiration: time.Hour * 1,
+    Tags:       []string{"category"},
+})
+if err != nil {
+    log.Fatalln(err)
+}
+
+// Invalidate all cache items that have a tag called 'category' 
+// associated with them.
+err = cache.Invalidate(context.Background(), stash.InvalidateOptions{
+    Tags: []string{"category"},
+})
+if err != nil {
+    log.Fatalln(err)
+}
+```
