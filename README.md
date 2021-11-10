@@ -18,16 +18,112 @@ with automatic marshaling and unmarshalling of cache items.
 
 `go get -u github.com/lacuna-seo/stash`
 
+## Provider
+
+A provider can 
+
+## Store
+
+```go
+// Store defines methods for interacting with the
+// caching system.
+type Store interface {
+	// Get retrieves a specific item from the cache by key.
+	// Returns an error if the item could not be found
+	// or unmarshalled.
+	Get(ctx context.Context, key, v interface{}) error
+
+	// Set set's a singular item in memory by key, value
+	// and options (tags and expiration time).
+	// Returns an error if the item could not be set.
+	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
+
+	// Delete removes a singular item from the cache by
+	// a specific key.
+	// Returns an error if the item could not be deleted.
+	Delete(ctx context.Context, key interface{}) error
+
+	// Invalidate removes items from the cache via the
+	// InvalidateOptions passed.
+	// Returns an error if the cache could not be invalidated.
+	Invalidate(ctx context.Context, options InvalidateOptions) error
+	
+	// Clear removes all items from the cache.
+	// Returns an error.
+	Clear(ctx context.Context) error
+}
+```
+
 ## Memory (go-cache)
 
+To create a new Memory (go-cache) store call `stash.NewMemory` and pass in a default expiry and default clean
+up duration.
 
+```go
+provider := stash.NewMemory(5*time.Minute, 10*time.Minute)
+
+cache, err := stash.Load(provider)
+if err != nil {
+    log.Fatalln(err)
+}
+
+err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
+    Expiration: time.Hour * 1,
+    Tags:       []string{"tag"},
+})
+if err != nil {
+    log.Fatalln(err)
+}
+
+var buf []byte
+err = cache.Get(context.Background(), "key", &buf)
+if err != nil {
+    log.Fatalln(err)
+}
+
+fmt.Println(string(buf)) // Returns stash
+
+```
 
 ## Redis
+
+To create a new Redis store call `stash.NewRedis` and pass in the redis options from `github.com/go-redis/redis/v8`
+(ensure that it is imported) and a default expiry. 
 
 ```go
 provider := stash.NewRedis(redis.Options{
     Addr: "127.0.0.1:6379",
-}, time.Hour*8)
+}, 5*time.Minute)
+
+cache, err := stash.Load(provider)
+if err != nil {
+    log.Fatalln(err)
+}
+
+err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
+    Expiration: time.Hour * 1,
+    Tags:       []string{"tag"},
+})
+if err != nil {
+    log.Fatalln(err)
+}
+
+var buf []byte
+err = cache.Get(context.Background(), "key", &buf)
+if err != nil {
+    log.Fatalln(err)
+}
+
+fmt.Println(string(buf)) // Returns stash
+```
+
+## Memcache
+
+To create a new Memcache store call `stash.NewMemcache` and pass a slice of strings that correlate to a memcache 
+server and a default expiry.
+
+```go
+provider := stash.NewMemcache([]string{"127.0.0.1:11211"}, 5*time.Minute)
 
 cache, err := stash.Load(provider)
 if err != nil {
@@ -52,40 +148,4 @@ fmt.Println(string(buf)) // Returns stash
 ```
 
 
-```go
-// Redis example for Stash.
-func Redis() {
-	// Create a provider, this could be Redis, Memcache
-	// or In Memory (go-cache).
-	provider := stash.NewRedis(redis.Options{
-		Addr: "127.0.0.1:6379",
-	}, time.Hour*8)
 
-	// Create a new cache store by passing a provider.
-	cache, err := stash.Load(provider)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	// Set a cache item with key and value, with the expiration
-	// time of one hour and a tag,
-	err = cache.Set(context.Background(), "key", []byte("stash"), stash.Options{
-		Expiration: time.Hour * 1,
-		Tags:       []string{"tag"},
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	// Obtains the cache item by key which automatically unmarshalls
-	// the value by passing a reference to the same type that
-	// has been stored.
-	var buf []byte
-	err = cache.Get(context.Background(), "key", &buf)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	fmt.Println(string(buf)) // Returns stash
-}
-```
