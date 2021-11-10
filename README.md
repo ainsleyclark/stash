@@ -11,18 +11,41 @@ with automatic marshaling and unmarshalling of cache items.
 ## Built-in stores
 
 * [Memory (go-cache)](https://github.com/patrickmn/go-cache) (patrickmn/go-cache)
-* [Memcache](https://github.com/bradfitz/gomemcache) (bradfitz/memcache)
 * [Redis](https://github.com/go-redis/redis/v8) (go-redis/redis)
-
+* [Memcache](https://github.com/bradfitz/gomemcache) (bradfitz/memcache)
+* 
 ## Install
 
 `go get -u github.com/lacuna-seo/stash`
 
 ## Provider
 
-A provider can 
+A provider can is an interface that can be used to pass to `stash.Load`. It is used as a driver for
+common methods between each memory store (Memory, Redis ot Memcache). 
+
+It is the result of what is called by `NewMemory`, `NewRedis` or `NewMemcache`. Which can be pinged.
+and validated. The methods are described below.
+
+
+```go
+// Provider defines the methods for a cache Provider.
+type Provider interface {
+    // Ping the store.
+    Ping() error
+    // Validate checks the environment for errors.
+    Validate() error
+    // Driver returns the store's name.
+    Driver() string
+    // Store returns the interface for use within
+    // the cache.
+    Store() store.StoreInterface
+}
+```
 
 ## Store
+
+A store is what is used to interact with the cache driver. Items can retrieve, set, deleted, invalidated and
+flushed. The methods are described below.
 
 ```go
 // Store defines methods for interacting with the
