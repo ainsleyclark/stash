@@ -14,16 +14,13 @@ func (t *StashTestSuite) TestRedis() {
 
 	got := NewRedis(redis.Options{}, time.Second*1)
 	t.NotNil(got)
-	t.NotNil(got.options)
-	t.NotNil(got.client)
-	t.Equal(got.defaultExpiration, time.Second*1)
 
-	t.UtilTestProviderSuccess(&RedisStore{
+	t.UtilTestProviderSuccess(&redisStore{
 		client:  redis.NewClient(store),
 		options: redis.Options{Addr: "127.0.0.1", Password: ""},
 	}, RedisDriver)
 
-	t.UtilTestProviderError(&RedisStore{
+	t.UtilTestProviderError(&redisStore{
 		client:  redis.NewClient(store),
 		options: redis.Options{},
 	})

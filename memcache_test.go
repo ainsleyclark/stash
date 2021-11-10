@@ -14,15 +14,13 @@ func (t *StashTestSuite) TestMemcache() {
 
 	got := NewMemcache(servers, time.Second*1)
 	t.NotNil(got)
-	t.Equal(servers, got.servers)
-	t.Equal(time.Second*1, got.defaultExpiration)
 
-	t.UtilTestProviderSuccess(&MemcacheStore{
+	t.UtilTestProviderSuccess(&memcacheStore{
 		client:  memcache.New(""),
 		servers: servers,
 	}, MemcacheDriver)
 
-	t.UtilTestProviderError(&MemcacheStore{
+	t.UtilTestProviderError(&memcacheStore{
 		client: memcache.New(""),
 	})
 }

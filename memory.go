@@ -11,39 +11,39 @@ import (
 	"time"
 )
 
-// MemoryStore defines the data stored for the go-cache
+// memoryStore defines the data stored for the go-cache
 // client.
-type MemoryStore struct {
+type memoryStore struct {
 	client *gocache.Cache
 }
 
 // NewMemory creates a new go-cache store and returns a provider.
-func NewMemory(defaultExpiration, cleanupInterval time.Duration) *MemoryStore {
-	return &MemoryStore{
+func NewMemory(defaultExpiration, cleanupInterval time.Duration) Provider {
+	return &memoryStore{
 		client: gocache.New(defaultExpiration, cleanupInterval),
 	}
 }
 
 // Validate satisfies the Provider interface by checking
 // for environment variables.
-func (m *MemoryStore) Validate() error {
+func (m *memoryStore) Validate() error {
 	return nil
 }
 
 // Driver satisfies the Provider interface by returning
-// the memory driver name.
-func (m *MemoryStore) Driver() string {
+// the memory Driver name.
+func (m *memoryStore) Driver() string {
 	return MemoryDriver
 }
 
 // Store satisfies the Provider interface by creating a
 // new store.StoreInterface.
-func (m *MemoryStore) Store() store.StoreInterface {
+func (m *memoryStore) Store() store.StoreInterface {
 	return cache.New(store.NewGoCache(m.client, nil))
 }
 
 // Ping satisfies the Provider interface by pinging the
 // store.
-func (m *MemoryStore) Ping() error {
+func (m *memoryStore) Ping() error {
 	return nil
 }

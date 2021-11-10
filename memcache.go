@@ -12,17 +12,17 @@ import (
 	"time"
 )
 
-// MemcacheStore defines the data stored for the memcache
+// memcacheStore defines the data stored for the memcache
 // client.
-type MemcacheStore struct {
+type memcacheStore struct {
 	client            *memcache.Client
 	servers           []string
 	defaultExpiration time.Duration
 }
 
 // NewMemcache creates a new memcached store and returns a provider.
-func NewMemcache(servers []string, defaultExpiration time.Duration) *MemcacheStore {
-	return &MemcacheStore{
+func NewMemcache(servers []string, defaultExpiration time.Duration) Provider {
+	return &memcacheStore{
 		client:            memcache.New(servers...),
 		servers:           servers,
 		defaultExpiration: defaultExpiration,
@@ -31,7 +31,7 @@ func NewMemcache(servers []string, defaultExpiration time.Duration) *MemcacheSto
 
 // Validate satisfies the Provider interface by checking
 // for environment variables.
-func (m *MemcacheStore) Validate() error {
+func (m *memcacheStore) Validate() error {
 	if len(m.servers) == 0 {
 		return errors.New("no memcache hosts defined in env")
 	}
@@ -39,14 +39,14 @@ func (m *MemcacheStore) Validate() error {
 }
 
 // Driver satisfies the Provider interface by returning
-// the memory driver name.
-func (m *MemcacheStore) Driver() string {
+// the memory Driver name.
+func (m *memcacheStore) Driver() string {
 	return MemcacheDriver
 }
 
 // Store satisfies the Provider interface by creating a
 // new store.StoreInterface.
-func (m *MemcacheStore) Store() store.StoreInterface {
+func (m *memcacheStore) Store() store.StoreInterface {
 	return cache.New(store.NewMemcache(m.client, &store.Options{
 		Expiration: m.defaultExpiration,
 	}))
@@ -54,6 +54,6 @@ func (m *MemcacheStore) Store() store.StoreInterface {
 
 // Ping satisfies the Provider interface by pinging the
 // store.
-func (m *MemcacheStore) Ping() error {
+func (m *memcacheStore) Ping() error {
 	return m.client.Ping()
 }

@@ -42,9 +42,9 @@ type Cache struct {
 	// store is the package store interface used for interacting
 	// with the cache store.
 	store store.StoreInterface
-	// driver is the current store being used, it can be
-	// MemoryStore, RedisDriver or MemcachedStore.
-	driver string
+	// Driver is the current store being used, it can be
+	// MemoryDriver, RedisDriver or MemcachedDriver.
+	Driver string
 }
 
 const (
@@ -69,10 +69,10 @@ var (
 )
 
 // Load initialises the cache store by the environment.
-// It will load a driver into memory ready for setting
+// It will load a Driver into memory ready for setting
 // getting setting and deleting. Drivers supported are Memory
 // Redis and MemCached.
-// Returns ErrInvalidDriver if the driver passed does not exist.
+// Returns ErrInvalidDriver if the Driver passed does not exist.
 func Load(prov Provider) (*Cache, error) {
 	if prov == nil {
 		return nil, errors.New("provider cannot be nil")
@@ -90,7 +90,7 @@ func Load(prov Provider) (*Cache, error) {
 
 	return &Cache{
 		store:  prov.Store(),
-		driver: prov.Driver(),
+		Driver: prov.Driver(),
 	}, nil
 }
 

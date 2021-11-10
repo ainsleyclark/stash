@@ -19,3 +19,4 @@ with automatic marshaling and unmarshalling of cache items.
 `go get -u github.com/lacuna-seo/stash`
 
 
+

@@ -9,8 +9,7 @@ import "time"
 func (t *StashTestSuite) TestMemory() {
 	got := NewMemory(time.Second*1, time.Second*1)
 	t.NotNil(got)
-	t.NotNil(got.client)
-	m := MemoryStore{}
+	m := memoryStore{}
 	t.Nil(m.Validate())
 	t.Equal(MemoryDriver, m.Driver())
 	store := m.Store()
