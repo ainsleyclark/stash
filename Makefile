@@ -3,6 +3,21 @@ setup:
 	go mod tidy && cd ./cmd go mod tidy
 .PHONY: setup
 
+# Redis
+example-redis:
+	cd ./cmd && go run main.go --redis
+.PHONY: example-redis
+
+# Memory
+example-memory:
+	cd ./cmd && go run main.go --memory
+.PHONY: example-memory
+
+# Memcache
+example-memcache:
+	cd ./cmd && go run main.go --memcache
+.PHONY: example-memory
+
 # Run gofmt
 format:
 	go fmt ./...

@@ -12,10 +12,13 @@ import (
 type Provider interface {
 	// Ping the store.
 	Ping() error
+
 	// Validate checks the environment for errors.
 	Validate() error
+
 	// Driver returns the store's name.
 	Driver() string
+
 	// Store returns the interface for use within
 	// the cache.
 	Store() store.StoreInterface

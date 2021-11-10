@@ -16,23 +16,30 @@ import (
 // Store defines methods for interacting with the
 // caching system.
 type Store interface {
-	// Get retrieves a specific item from the cache by key.
-	// Returns errors.NOTFOUND if it could not be found.
+	// Get retrieves a specific item from the cache by key. Values are
+	// automatically marshalled for use with Redis & Memcache.
+	// Returns an error if the item could not be found
+	// or unmarshalled.
 	Get(ctx context.Context, key, v interface{}) error
-	// Set set's a singular item in memory by key, value
-	// and options (tags and expiration time).
-	// Logs errors.INTERNAL if the item could not be set.
+
+	// Set stores a singular item in memory by key, value
+	// and options (tags and expiration time). Values are automatically
+	// marshalled for use with Redis & Memcache.
+	// Returns an error if the item could not be set.
 	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
+
 	// Delete removes a singular item from the cache by
 	// a specific key.
-	// Logs errors.INTERNAL if the item could not be deleted.
+	// Returns an error if the item could not be deleted.
 	Delete(ctx context.Context, key interface{}) error
+
 	// Invalidate removes items from the cache via the
 	// InvalidateOptions passed.
-	// Returns errors.INVALID if the cache could not be invalidated.
+	// Returns an error if the cache could not be invalidated.
 	Invalidate(ctx context.Context, options InvalidateOptions) error
+
 	// Clear removes all items from the cache.
-	// Returns errors.INTERNAL if the cache could not be cleared.
+	// Returns an error.
 	Clear(ctx context.Context) error
 }
 
@@ -42,9 +49,9 @@ type Cache struct {
 	// store is the package store interface used for interacting
 	// with the cache store.
 	store store.StoreInterface
-	// driver is the current store being used, it can be
-	// MemoryStore, RedisDriver or MemcachedStore.
-	driver string
+	// Driver is the current store being used, it can be
+	// MemoryDriver, RedisDriver or MemcachedDriver.
+	Driver string
 }
 
 const (
@@ -69,10 +76,10 @@ var (
 )
 
 // Load initialises the cache store by the environment.
-// It will load a driver into memory ready for setting
+// It will load a Driver into memory ready for setting
 // getting setting and deleting. Drivers supported are Memory
 // Redis and MemCached.
-// Returns ErrInvalidDriver if the driver passed does not exist.
+// Returns ErrInvalidDriver if the Driver passed does not exist.
 func Load(prov Provider) (*Cache, error) {
 	if prov == nil {
 		return nil, errors.New("provider cannot be nil")
@@ -90,7 +97,7 @@ func Load(prov Provider) (*Cache, error) {
 
 	return &Cache{
 		store:  prov.Store(),
-		driver: prov.Driver(),
+		Driver: prov.Driver(),
 	}, nil
 }
 
@@ -131,7 +138,7 @@ func (c *Cache) Set(ctx context.Context, key interface{}, value interface{}, opt
 
 // Delete removes a singular item from the cache by
 // a specific key.
-// Logs errors.INTERNAL if the item could not be deleted.
+// Returns an error if the item could not be deleted.
 func (c *Cache) Delete(ctx context.Context, key interface{}) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -140,7 +147,7 @@ func (c *Cache) Delete(ctx context.Context, key interface{}) error {
 
 // Invalidate removes items from the cache via the
 // InvalidateOptions passed.
-// Returns errors.INVALID if the cache could not be invalidated.
+// Returns an error if the cache could not be invalidated.
 func (c *Cache) Invalidate(ctx context.Context, options InvalidateOptions) error {
 	mtx.Lock()
 	defer mtx.Unlock()
@@ -148,7 +155,7 @@ func (c *Cache) Invalidate(ctx context.Context, options InvalidateOptions) error
 }
 
 // Clear removes all items from the cache.
-// Returns errors.INTERNAL if the cache could not be cleared.
+// Returns an error.
 func (c *Cache) Clear(ctx context.Context) error {
 	mtx.Lock()
 	defer mtx.Unlock()

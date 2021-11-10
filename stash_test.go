@@ -85,7 +85,7 @@ func (t *StashTestSuite) TestLoad() {
 				t.Fail("nil Driver")
 				return
 			}
-			t.Equal(test.want, c.driver)
+			t.Equal(test.want, c.Driver)
 		})
 	}
 }

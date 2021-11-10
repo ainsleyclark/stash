@@ -13,17 +13,17 @@ import (
 	"time"
 )
 
-// RedisStore defines the data stored for the redisStore
+// redisStore defines the data stored for the redisStore
 // client.
-type RedisStore struct {
+type redisStore struct {
 	client            *redis.Client
 	options           redis.Options
 	defaultExpiration time.Duration
 }
 
 // NewRedis creates a new redis store and returns a provider.
-func NewRedis(options redis.Options, defaultExpiration time.Duration) *RedisStore {
-	return &RedisStore{
+func NewRedis(options redis.Options, defaultExpiration time.Duration) Provider {
+	return &redisStore{
 		client:            redis.NewClient(&options),
 		options:           options,
 		defaultExpiration: defaultExpiration,
@@ -32,7 +32,7 @@ func NewRedis(options redis.Options, defaultExpiration time.Duration) *RedisStor
 
 // Validate satisfies the Provider interface by checking
 // for environment variables.
-func (r *RedisStore) Validate() error {
+func (r *redisStore) Validate() error {
 	if r.options.Addr == "" {
 		return errors.New("error: no redis address defined")
 	}
@@ -40,14 +40,14 @@ func (r *RedisStore) Validate() error {
 }
 
 // Driver satisfies the Provider interface by returning
-// the memory driver name.
-func (r *RedisStore) Driver() string {
+// the memory Driver name.
+func (r *redisStore) Driver() string {
 	return RedisDriver
 }
 
 // Store satisfies the Provider interface by creating a
 // new store.StoreInterface.
-func (r *RedisStore) Store() store.StoreInterface {
+func (r *redisStore) Store() store.StoreInterface {
 	return cache.New(store.NewRedis(r.client, &store.Options{
 		Expiration: r.defaultExpiration,
 	}))
@@ -55,6 +55,6 @@ func (r *RedisStore) Store() store.StoreInterface {
 
 // Ping satisfies the Provider interface by pinging the
 // store.
-func (r *RedisStore) Ping() error {
+func (r *redisStore) Ping() error {
 	return r.client.Ping(context.Background()).Err()
 }
