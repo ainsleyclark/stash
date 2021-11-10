@@ -59,6 +59,8 @@ type Store interface {
 To create a new Memory (go-cache) store call `stash.NewMemory` and pass in a default expiry and default clean
 up duration.
 
+➡️ Click [here](https://github.com/lacuna-seo/stash/blob/dev/examples/memory.go) for an example.
+
 ```go
 provider := stash.NewMemory(5*time.Minute, 10*time.Minute)
 
@@ -89,6 +91,8 @@ fmt.Println(string(buf)) // Returns stash
 
 To create a new Redis store call `stash.NewRedis` and pass in the redis options from `github.com/go-redis/redis/v8`
 (ensure that it is imported) and a default expiry. 
+
+➡️ Click [here](https://github.com/lacuna-seo/stash/blob/dev/examples/redis.go) for an example.
 
 ```go
 provider := stash.NewRedis(redis.Options{
@@ -122,6 +126,8 @@ fmt.Println(string(buf)) // Returns stash
 To create a new Memcache store call `stash.NewMemcache` and pass a slice of strings that correlate to a memcache 
 server and a default expiry.
 
+➡️ Click [here](https://github.com/lacuna-seo/stash/blob/dev/examples/memcache.go) for an example.
+
 ```go
 provider := stash.NewMemcache([]string{"127.0.0.1:11211"}, 5*time.Minute)
 
@@ -147,5 +153,5 @@ if err != nil {
 fmt.Println(string(buf)) // Returns stash
 ```
 
-
+## Tags
 
