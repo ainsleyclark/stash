@@ -51,31 +51,25 @@ flushed. The methods are described below.
 
 ```go
 type Store interface {
-	// Get retrieves a specific item from the cache by key. Values are
-	// automatically marshalled for use with Redis & Memcache.
-	// Returns an error if the item could not be found
-	// or unmarshalled.
-	Get(ctx context.Context, key, v interface{}) error
-
-	// Set stores a singular item in memory by key, value
-	// and options (tags and expiration time). Values are automatically
-	// marshalled for use with Redis & Memcache.
-	// Returns an error if the item could not be set.
-	Set(ctx context.Context, key interface{}, value interface{}, options Options) error
-
-	// Delete removes a singular item from the cache by
-	// a specific key.
-	// Returns an error if the item could not be deleted.
-	Delete(ctx context.Context, key interface{}) error
-
-	// Invalidate removes items from the cache via the
-	// InvalidateOptions passed.
-	// Returns an error if the cache could not be invalidated.
-	Invalidate(ctx context.Context, options InvalidateOptions) error
-	
-	// Clear removes all items from the cache.
-	// Returns an error.
-	Clear(ctx context.Context) error
+    // Get retrieves a specific item from the cache by key. Values are
+    // automatically marshalled for use with Redis & Memcache.
+    Get(ctx context.Context, key, v interface{}) error
+    
+    // Set stores a singular item in memory by key, value
+    // and options (tags and expiration time). Values are automatically
+    // marshalled for use with Redis & Memcache.
+    Set(ctx context.Context, key interface{}, value interface{}, options Options) error
+    
+    // Delete removes a singular item from the cache by
+    // a specific key.
+    Delete(ctx context.Context, key interface{}) error
+    
+    // Invalidate removes items from the cache via the
+    // InvalidateOptions passed.
+    Invalidate(ctx context.Context, options InvalidateOptions) error
+    
+    // Clear removes all items from the cache.
+    Clear(ctx context.Context) error
 }
 ```
 
@@ -177,7 +171,8 @@ fmt.Println(string(buf)) // Returns stash
 
 ## Tags
 
-Cache invalidaton is hard. By using tags you are able to group cache items together.
+Cache invalidaton is hard. By using tags you are able to group cache items together and invalidate
+them by a slice of strings.
 
 ```go
 // Set a cache key with the value of 'stash' and a tag of 'category`.
