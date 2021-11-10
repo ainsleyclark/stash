@@ -197,3 +197,18 @@ if err != nil {
     log.Fatalln(err)
 }
 ```
+
+## Examples
+
+To run the examples, clone the repo and run `make setup` and choose one of the following commands to run
+an example with a particular store.
+
+✅ **Memory**: `make memory:example`
+
+✅ **Redis**: `make redis:example`
+
+✅ **Memcache**: `make memcache:example`
+
+## Credits
+
+Thanks to [https://github.com/eko/gocache](https://github.com/eko/gocache)
